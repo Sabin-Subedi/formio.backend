@@ -75,8 +75,12 @@ WSGI_APPLICATION = 'formio.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+        'ENGINE': 'django.db.backends.postgresql',
+        'PORT':'5434',
+        'NAME': 'formio_db',
+        'USER': 'admin',
+        'PASSWORD': 'admin_admin',
+        'HOST':'127.0.0.1'
     }
 }
 
@@ -124,3 +128,4 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 
 APP_BASE_MODEL = 'helpers.models.BaseModal'
+AUTH_USER_MODEL = "core.User"
