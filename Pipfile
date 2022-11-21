@@ -9,6 +9,8 @@ google-api-python-client = "*"
 google-auth = "*"
 google-auth-oauthlib = "*"
 google-auth-httplib2 = "*"
+djangorestframework = "*"
+psycopg2 = "*"
 
 [dev-packages]
 

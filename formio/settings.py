@@ -37,6 +37,10 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'rest_framework',
+    'core',
+    'auth0',
+    'helpers',
 ]
 
 MIDDLEWARE = [
@@ -127,5 +131,5 @@ STATIC_URL = 'static/'
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 
-APP_BASE_MODEL = 'helpers.models.BaseModal'
+APP_BASE_MODEL = 'helpers.BaseModel'
 AUTH_USER_MODEL = "core.User"
