@@ -6,11 +6,7 @@ from django.apps import apps
 from helpers.models import BaseModel
 
 
-
-class User(AbstractUser,BaseModel):
-    email = models.EmailField(blank=False,unique=True)
+class User(AbstractUser, BaseModel):
+    email = models.EmailField(blank=False, unique=True)
     emailVerified = models.BooleanField(default=False)
     registeredAt = models.DateTimeField(auto_now_add=True)
-    
-    USERNAME_FIELD = "email"
-

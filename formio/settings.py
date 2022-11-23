@@ -11,7 +11,8 @@ https://docs.djangoproject.com/en/4.1/ref/settings/
 """
 
 from pathlib import Path
-
+import os
+os.environ['OAUTHLIB_INSECURE_TRANSPORT'] = '1'
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -80,11 +81,11 @@ WSGI_APPLICATION = 'formio.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'PORT':'5434',
+        'PORT': '5434',
         'NAME': 'formio_db',
         'USER': 'admin',
         'PASSWORD': 'admin_admin',
-        'HOST':'127.0.0.1'
+        'HOST': '127.0.0.1'
     }
 }
 
