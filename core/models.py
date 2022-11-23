@@ -10,3 +10,4 @@ class User(AbstractUser, BaseModel):
     email = models.EmailField(blank=False, unique=True)
     emailVerified = models.BooleanField(default=False)
     registeredAt = models.DateTimeField(auto_now_add=True)
+    googleOauth = models.JSONField(blank=True)

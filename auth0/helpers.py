@@ -28,7 +28,7 @@ def get_google_oauth_url():
     # # Store the state so the callback can verify the auth server response.
     # flask.session['state'] = state
 
-    return authorization_url, state
+    return authorization_url, state,flow
 
 
-oauth_google_authorization_url, oauth_state = get_google_oauth_url()
+oauth_google_authorization_url, oauth_state,flow = get_google_oauth_url()
