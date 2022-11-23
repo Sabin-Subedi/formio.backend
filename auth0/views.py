@@ -25,17 +25,23 @@ class GoogleOAuthRedirectViewSet(GenericViewSet):
 
         flow.redirect_uri = 'http://localhost:8000/auth/oauth/google/redirect/'
 
-        authorization_response = request.build_absolute_uri()
-        flow.fetch_token(authorization_response=authorization_response)
-
-        print(flow.credentials)
-
-        return Response("ok")
+        flow.fetch_token(code=request.query_params.get('code'))
+        credentials = flow.credentials
+        return Response(credentials_to_dict(credentials))
 
 # @api_view()
 # def google_oauth_url(req):
 
 #     return Response(authorization_url)
+
+
+def credentials_to_dict(credentials):
+    return {'token': credentials.token,
+            'refresh_token': credentials.refresh_token,
+            'token_uri': credentials.token_uri,
+            'client_id': credentials.client_id,
+            'client_secret': credentials.client_secret,
+            'scopes': credentials.scopes}
 
 
 @api_view()
