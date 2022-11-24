@@ -7,8 +7,8 @@ def gen_auth_tokens(user):
     refresh = RefreshToken.for_user(user)
 
     return {
-        'refresh_tokens': str(refresh),
-        'access_tokens': str(refresh.access_token),
+        'refresh_token': str(refresh),
+        'access_token': str(refresh.access_token),
     }
 
 def credentials_to_dict(credentials):
