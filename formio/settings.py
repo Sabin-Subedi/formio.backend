@@ -133,5 +133,21 @@ STATIC_URL = 'static/'
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 
+# Google oauth config
+GOOGLE_OAUTH_CONFIG = {
+    'client_id': 'your_client_id',
+    'client_secret_file': 'client_secret.json',
+    'redirect_uri': 'http://localhost:8000/auth/oauth/google/redirect/',
+    'scope': ['https://www.googleapis.com/auth/userinfo.email', 'https://www.googleapis.com/auth/userinfo.profile']
+}
+
+# Github oauth config
+GITHUB_OAUTH_CONFIG = {
+    'client_id': '6bba4d89923b1a252b02',
+    'client_secret': '8fbbfb4488d4d4bfc28ee8542ce76630d14050ee',
+    'redirect_uri': 'http://localhost:8000/auth/oauth/github/redirect/',
+    'scope': ['read:user', 'user:email']
+}
+
 APP_BASE_MODEL = 'helpers.BaseModel'
 AUTH_USER_MODEL = "core.User"
