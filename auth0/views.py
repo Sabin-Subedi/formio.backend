@@ -1,24 +1,53 @@
-import google.oauth2.credentials
 import google_auth_oauthlib.flow
 import requests
-from django.shortcuts import redirect, render
-from rest_framework.decorators import api_view
+from rest_framework.decorators import api_view,action
 from rest_framework.exceptions import AuthenticationFailed, ValidationError
 from rest_framework.response import Response
-from rest_framework.viewsets import GenericViewSet
-from .helpers import oauth_google_authorization_url
-from rest_framework.status import HTTP_400_BAD_REQUEST
-from pprint import pprint
+from rest_framework.viewsets import GenericViewSet,ModelViewSet
 from django.conf import settings
+from django.shortcuts import get_object_or_404
+from rest_framework import status
+from pprint import pprint
+from .helpers import (credentials_to_dict,gen_auth_tokens)
+from helpers.helpers import gen_url,check_response
+from rest_framework.views import APIView
+from .serializers import LoginSerializer,UserSerializer
+from core.models import User
+import json
+from rest_framework.mixins import ListModelMixin
 
-# Create your views here.
+from rest_framework_simplejwt.views import token_obtain_pair
+from django.contrib.auth import login
 
+@api_view(['GET'])
+def get_google_oauth_authorization_url(request):
+     # Create flow instance to manage the OAuth 2.0 Authorization Grant Flow steps.
+    flow = google_auth_oauthlib.flow.Flow.from_client_secrets_file(
+        settings.GOOGLE_OAUTH_CONFIG['client_secret_file'],
+        scopes=settings.GOOGLE_OAUTH_CONFIG['scope'],
+        redirect_uri=settings.GOOGLE_OAUTH_CONFIG['redirect_uri'])
 
-class GoogleOAuthViewSet(GenericViewSet):
-    http_method_names = ['get']
+    authorization_url, state = flow.authorization_url(
+        access_type='offline',
+        include_granted_scopes='true')
 
-    def list(self, request):
-        return Response(oauth_google_authorization_url)
+    return Response({
+        'authorization_url': authorization_url,
+    })
+
+@api_view(['GET'])
+def get_github_oauth_authorization_url(request):
+    authorize_url = gen_url(
+            url='https://github.com/login/oauth/authorize',
+            params={'client_id': settings.GITHUB_OAUTH_CONFIG['client_id'],
+                    'redirect_uri': settings.GITHUB_OAUTH_CONFIG['redirect_uri'],
+                    'scope': settings.GITHUB_OAUTH_CONFIG['scope']
+                    }
+        )
+    return Response({
+        "authorization_url": authorize_url
+    })
+
 
 
 class GoogleOAuthRedirectViewSet(GenericViewSet):
@@ -46,19 +75,6 @@ class GoogleOAuthRedirectViewSet(GenericViewSet):
         return Response(userInfo)
 
 
-class GithubOAuthViewSet(GenericViewSet):
-    http_method_names = ['get']
-
-    def list(self, request):
-        authorize_url = gen_url(
-            url='https://github.com/login/oauth/authorize',
-            params={'client_id': settings.GITHUB_OAUTH_CONFIG['client_id'],
-                    'redirect_uri': settings.GITHUB_OAUTH_CONFIG['redirect_uri'],
-                    'scope': settings.GITHUB_OAUTH_CONFIG['scope']
-                    }
-        )
-
-        return Response(authorize_url)
 
 
 @api_view(['GET'])
@@ -115,29 +131,54 @@ def get_github_user_profile(request):
         return Response(github_user_profile)
 
         # print()
-    return ValidationError(detail="Error connecting to the Github Server", status=HTTP_400_BAD_REQUEST)
+    return ValidationError(detail="Error connecting to the Github Server", status=status.HTTP_400_BAD_REQUEST)
 
 
-def credentials_to_dict(credentials):
-    return {'token': credentials.token,
-            'refresh_token': credentials.refresh_token,
-            'token_uri': credentials.token_uri,
-            'client_id': credentials.client_id,
-            'client_secret': credentials.client_secret,
-            'scopes': credentials.scopes}
 
+# class LoginUserViewSet(ModelViewSet):
+    
+#     http_method_names= []
+   
+#     # queryset = model.objects.all()
+#     serializer_class_name = LoginSerializer
 
-def check_response(response, response_type):
-
-    if response.status_code != 200:
-        raise ValidationError(
-            detail="There was some issue with oauth", code=response.status_code)
-
-
-def gen_url(url, params):
-    query_strings = []
-    for key, value in params.items():
-
-        query_strings.append('{}={}'.format(
-            key, ",".join(value) if type(value) == list else value))
-    return url + '?' + '&'.join(query_strings)
+    
+#     @action(detail=False,methods=['POST'])
+#     def login(self, request):
+       
+#         serializer = self.get_serializer(data=request.data)
+#         serializer.is_valid(raise_exception=True)
+#         email = serializer.validated_data['email']
+#         user = User.objects.get(email=email)
+#         return Response(user)
+    
+        
+class LoginUserView(APIView):
+    serializer_class = LoginSerializer
+    http_method_names = ['post']
+    
+    def post(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+   
+        print(serializer.user)
+        login(self.request,user=serializer.user)
+        user = User.objects.get(email=serializer.user)
+        
+        if user is None: 
+            raise ValidationError("Your login info is not right. Try again, or reset your password. if it slipped your mind.",status=status.HTTP_401_UNAUTHORIZED)
+        
+        print(user)
+        token=gen_auth_tokens(user)
+        
+        context = {"token": token}
+        serialized_user = UserSerializer(user,context=context)
+        
+        
+        return Response(serialized_user.data)
+        
+        
+        
+    
+    def get_serializer(self, *args,**kwargs):
+        return self.serializer_class(*args,**kwargs)

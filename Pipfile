@@ -12,6 +12,8 @@ google-auth-oauthlib = "*"
 google-auth-httplib2 = "*"
 djangorestframework = "*"
 psycopg2-binary = "*"
+djangorestframework-simplejwt = "*"
+cryptography = "*"
 
 [dev-packages]
 

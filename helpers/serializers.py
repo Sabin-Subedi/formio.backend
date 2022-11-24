@@ -2,6 +2,8 @@ from rest_framework.serializers import ModelSerializer
 
 
 class BaseSerializer(ModelSerializer):
+    basic_fields = ['idx']
+    
     def create(self, validated_data):
         return self.Meta.model.objects.create(**validated_data)
 

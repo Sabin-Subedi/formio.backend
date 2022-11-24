@@ -40,6 +40,8 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'rest_framework',
+    'rest_framework_simplejwt',
+    'rest_framework_simplejwt.token_blacklist',
     'core',
     'auth0',
     'helpers',
@@ -132,12 +134,23 @@ STATIC_URL = 'static/'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
+REST_FRAMEWORK = {
+    'DEFAULT_PARSER_CLASSES': [
+        'rest_framework.parsers.JSONParser',
+    ],
+    'DEFAULT_AUTHENTICATION_CLASSES': (
+        
+        'rest_framework_simplejwt.authentication.JWTAuthentication',
+    )
+   
+}
+
 
 # Google oauth config
 GOOGLE_OAUTH_CONFIG = {
     'client_id': 'your_client_id',
     'client_secret_file': 'client_secret.json',
-    'redirect_uri': 'http://localhost:8000/auth/oauth/google/redirect/',
+    'redirect_uri': 'http://localhost:3000/',
     'scope': ['https://www.googleapis.com/auth/userinfo.email', 'https://www.googleapis.com/auth/userinfo.profile']
 }
 
