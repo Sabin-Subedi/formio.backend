@@ -8,7 +8,7 @@ from rest_framework_simplejwt.views import (
 
 router = DefaultRouter()
 
-router.register('oauth/google/redirect/', GoogleOAuthRedirectViewSet,
+router.register('oauth/google/redirect', GoogleOAuthRedirectViewSet,
                 basename='google_oauth_redirect')
 
 # router.register('user', LoginUserViewSet,basename="user-login")

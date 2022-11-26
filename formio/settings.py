@@ -151,7 +151,7 @@ GOOGLE_OAUTH_CONFIG = {
     'client_id': 'your_client_id',
     'client_secret_file': 'client_secret.json',
     # 'redirect_uri': 'http://localhost:3000/',
-    'redirect_uri': 'http://localhost:8000/auth/oauth/github/redirect/',
+    'redirect_uri': 'http://localhost:8000/auth/oauth/google/redirect/',
     'scope': ['https://www.googleapis.com/auth/userinfo.email', 'https://www.googleapis.com/auth/userinfo.profile']
 }
 
