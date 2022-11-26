@@ -135,9 +135,9 @@ STATIC_URL = 'static/'
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 REST_FRAMEWORK = {
-    'DEFAULT_PARSER_CLASSES': [
-        'rest_framework.parsers.JSONParser',
-    ],
+    # 'DEFAULT_PARSER_CLASSES': [
+    #     'rest_framework.parsers.JSONParser',
+    # ],
     'DEFAULT_AUTHENTICATION_CLASSES': (
 
         'rest_framework_simplejwt.authentication.JWTAuthentication',
@@ -148,11 +148,14 @@ REST_FRAMEWORK = {
 
 # Google oauth config
 GOOGLE_OAUTH_CONFIG = {
-    'client_id': 'your_client_id',
-    'client_secret_file': 'client_secret.json',
-    # 'redirect_uri': 'http://localhost:3000/',
     'redirect_uri': 'http://localhost:8000/auth/oauth/google/redirect/',
-    'scope': ['https://www.googleapis.com/auth/userinfo.email', 'https://www.googleapis.com/auth/userinfo.profile']
+    'scope': ['https://www.googleapis.com/auth/userinfo.email', 'https://www.googleapis.com/auth/userinfo.profile'],
+    "client_id": "557807382946-4mt2st5iujvf7pms07bskphkkc5qhfsp.apps.googleusercontent.com",
+    "project_id": "formio-369312",
+    "auth_uri": "https://accounts.google.com/o/oauth2/auth",
+    "token_uri": "https://oauth2.googleapis.com/token",
+    "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
+    "client_secret": "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"
 }
 
 # Github oauth config

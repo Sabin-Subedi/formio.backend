@@ -1,12 +1,10 @@
-import requests
-from django.conf import settings
-from helpers.helpers import check_response
-from .helpers import credentials_to_dict
-from rest_framework.exceptions import AuthenticationFailed, ValidationError
-from rest_framework import status
-from core.models import User
-import google_auth_oauthlib
 
+from django.conf import settings
+from rest_framework.exceptions import AuthenticationFailed,ValidationError
+from rest_framework import status
+import requests
+from helpers.helpers import check_response
+from core.models import User
 
 def get_github_user_profile(code):
     github_access_token_respone = requests.post('https://github.com/login/oauth/access_token', data={
@@ -54,8 +52,8 @@ def get_github_user_profile(code):
 
         return github_user_profile
 
+        # print()
     return ValidationError(detail="Error connecting to the Github Server", status=status.HTTP_400_BAD_REQUEST)
-
 
 def check_oauth_user_exists(profile, oauth_id_field: str):
     user = User.objects.filter(email=profile['email'])
@@ -63,35 +61,33 @@ def check_oauth_user_exists(profile, oauth_id_field: str):
         return user
     return None
 
-
 def get_or_create_user(profile, oauth_id_field: str):
+    if oauth_id_field is None:
+        raise ValueError('oauth_id_field is required')
+    
     user = check_oauth_user_exists(profile, oauth_id_field)
     if user is not None:
         return user.first()
+    
+    first_name,last_name = parse_fullname(profile['name'])
+    
+    user_data = {
+        'email':profile['email'],
+        'first_name': first_name,
+        'last_name': last_name,
+        [oauth_id_field]:profile['id']
+    }
 
     user = User.objects.create(
-        email=profile['email'],
-        first_name=profile['name'],
-        oauth_id=profile['id'],
-        oauth_id_field=oauth_id_field,
-        oauth_access_token=profile['access_token']
+       **user_data
     )
 
     return user
 
 
-def get_google_user_profile(code):
-    flow = google_auth_oauthlib.flow.Flow.from_client_secrets_file(
-        settings.GOOGLE_OAUTH_CONFIG['client_secret_file'],
-        scopes=settings.GOOGLE_OAUTH_CONFIG['scope'],
-        redirect_uri=settings.GOOGLE_OAUTH_CONFIG['redirect_uri'])
-    
-    
-    flow.fetch_token(code=code)
-    credentials = credentials_to_dict(flow.credentials)
-
-    profile_response = requests.get('https://www.googleapis.com/oauth2/v1/userinfo',
-                                    params={"alt": "json", "access_token": credentials["token"]})
-    check_response(profile_response, "Get user profile")
-    userInfo = profile_response.json()
-    return userInfo
+def parse_fullname(fullname:str):
+    splitted_name = fullname.split(' ')
+    return {
+        'first_name': splitted_name[0],
+        'last_name': ' '.join(splitted_name[1:])
+    }
