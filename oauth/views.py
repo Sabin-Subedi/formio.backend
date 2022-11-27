@@ -31,7 +31,7 @@ def oauth_github(request):
     user_profile = helpers.get_github_user_profile(
         serializer.validated_data['code'])
 
-    user = helpers.get_or_create_user(user_profile, 'github_oauth_id')
+    user = helpers.get_or_create_oauth_user(user_profile, 'github_oauth_id')
 
     token = gen_auth_tokens(user)
     context = {"token": token}
@@ -50,3 +50,20 @@ def google_oauth_authorization_url(request):
                 }
     )
     return redirect(authorize_url)
+
+
+@api_view(['POST'])
+def oauth_google(request):
+    serializer = serializers.OauthSerializer(data=request.data)
+    serializer.is_valid(raise_exception=True)
+
+    user_profile = helpers.get_google_user_profile(
+        serializer.validated_data['code'])
+
+    user = helpers.get_or_create_oauth_user(user_profile, 'google_oauth_id')
+
+    token = gen_auth_tokens(user)
+    context = {"token": token}
+    serialized_user = UserSerializer(user, context=context)
+
+    return Response(serialized_user.data)
