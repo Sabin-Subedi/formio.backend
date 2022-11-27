@@ -13,7 +13,7 @@ class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         fields = ['idx', 'email', 'password', 'first_name', 'last_name', 'last_login',
-                  'created_at', 'is_active', 'email_verified', 'google_oauth', 'github_oauth', 'tokens']
+                  'created_at', 'is_active', 'email_verified', 'google_oauth_id', 'github_oauth_id', 'tokens']
         extra_kwargs = {
             'password': {
                 'write_only': True

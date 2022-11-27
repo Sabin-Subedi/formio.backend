@@ -1,10 +1,11 @@
 
 from django.conf import settings
-from rest_framework.exceptions import AuthenticationFailed,ValidationError
+from rest_framework.exceptions import AuthenticationFailed, ValidationError
 from rest_framework import status
 import requests
 from helpers.helpers import check_response
 from core.models import User
+
 
 def get_github_user_profile(code):
     github_access_token_respone = requests.post('https://github.com/login/oauth/access_token', data={
@@ -35,8 +36,6 @@ def get_github_user_profile(code):
         github_user_profile = github_user_profile_response.json()
         github_user_profile['access_token'] = access_token
 
-        print(github_user_profile['email'])
-
         if github_user_profile['email'] is None:
 
             github_user_email_response = requests.get('https://api.github.com/user/emails', headers={
@@ -51,41 +50,48 @@ def get_github_user_profile(code):
                     github_user_profile['email'] = item['email']
 
         return github_user_profile
-
         # print()
     return ValidationError(detail="Error connecting to the Github Server", status=status.HTTP_400_BAD_REQUEST)
 
+
 def check_oauth_user_exists(profile, oauth_id_field: str):
-    user = User.objects.filter(email=profile['email'])
-    if user.exists() and profile['id'] == user.first()[oauth_id_field]:
+    user_filter = {
+        oauth_id_field: profile['id'],
+        'email': profile['email']
+    }
+    user = User.objects.filter(**user_filter)
+
+    if user.exists():
         return user
     return None
+
 
 def get_or_create_user(profile, oauth_id_field: str):
     if oauth_id_field is None:
         raise ValueError('oauth_id_field is required')
-    
+
     user = check_oauth_user_exists(profile, oauth_id_field)
     if user is not None:
         return user.first()
-    
-    first_name,last_name = parse_fullname(profile['name'])
-    
+
+    parsed_name = parse_fullname(profile['name'])
+    print(parsed_name['first_name'], parsed_name['last_name'])
+
     user_data = {
-        'email':profile['email'],
-        'first_name': first_name,
-        'last_name': last_name,
-        [oauth_id_field]:profile['id']
+        'email': profile['email'],
+        'first_name': parsed_name['first_name'],
+        'last_name': parsed_name['last_name'],
+        oauth_id_field: profile['id']
     }
 
     user = User.objects.create(
-       **user_data
+        **user_data
     )
 
     return user
 
 
-def parse_fullname(fullname:str):
+def parse_fullname(fullname: str):
     splitted_name = fullname.split(' ')
     return {
         'first_name': splitted_name[0],

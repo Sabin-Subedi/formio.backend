@@ -5,11 +5,10 @@ from rest_framework.decorators import api_view
 from rest_framework.response import Response
 
 
-from helpers.helpers import gen_url,gen_auth_tokens
+from helpers.helpers import gen_url, gen_auth_tokens
 from auth0.serializers import UserSerializer
 from . import helpers
 from . import serializers
-
 
 
 @api_view(['GET'])
@@ -23,16 +22,17 @@ def github_oauth_authorization_url(request):
     )
     return redirect(authorize_url)
 
+
 @api_view(['POST'])
 def oauth_github(request):
     serializer = serializers.OauthSerializer(data=request.data)
     serializer.is_valid(raise_exception=True)
 
     user_profile = helpers.get_github_user_profile(
-    serializer.validated_data['code'])
+        serializer.validated_data['code'])
 
-    user = helpers.get_or_create_user(user_profile,'github_oauth_id')
-    
+    user = helpers.get_or_create_user(user_profile, 'github_oauth_id')
+
     token = gen_auth_tokens(user)
     context = {"token": token}
     serialized_user = UserSerializer(user, context=context)
